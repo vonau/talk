@@ -22,9 +22,7 @@ import {
   Query,
   resolveConnection,
 } from "coral-server/models/helpers";
-import { Story } from "coral-server/models/story";
 import { TenantResource } from "coral-server/models/tenant";
-import { User } from "coral-server/models/user";
 import { comments as collection } from "coral-server/services/mongodb/collections";
 
 import {
@@ -1111,11 +1109,6 @@ export async function retrieveOngoingDiscussions(
 
   return results;
 }
-
-export type FeaturedComment = Comment & {
-  story: Story;
-  author: User;
-};
 
 export async function retrieveFeaturedComments(
   mongo: Db,
