@@ -22,7 +22,9 @@ import {
   Query,
   resolveConnection,
 } from "coral-server/models/helpers";
+import { Story } from "coral-server/models/story";
 import { TenantResource } from "coral-server/models/tenant";
+import { User } from "coral-server/models/user";
 import { comments as collection } from "coral-server/services/mongodb/collections";
 
 import {
@@ -1110,6 +1112,11 @@ export async function retrieveOngoingDiscussions(
   return results;
 }
 
+export type FeaturedComment = Comment & {
+  story: Story;
+  author: User;
+};
+
 export async function retrieveFeaturedComments(
   mongo: Db,
   tenantID: string,
@@ -1122,7 +1129,7 @@ export async function retrieveFeaturedComments(
     "tags.type": GQLTAG.FEATURED,
     status: { $in: PUBLISHED_STATUSES },
   };
-  const results = await collection(mongo)
+  const results = await collection<FeaturedComment>(mongo)
     .aggregate([
       {
         $match,
@@ -1143,6 +1150,8 @@ export async function retrieveFeaturedComments(
           as: "story",
         },
       },
+      { $unwind: "$author" },
+      { $unwind: "$story" },
       { $sort: { createdAt: -1 } },
       { $limit: limit },
     ])
